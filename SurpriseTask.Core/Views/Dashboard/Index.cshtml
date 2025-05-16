@@ -1,0 +1,272 @@
+@{
+    ViewData["Title"] = "ADMIN";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+
+<div class="d-flex justify-content-between px-4">
+    <h3 class="">@ViewData["Title"]</h3>
+    <div class="d-flex align-items-center gap-2">
+        <input type="text" id="searchInput" placeholder="Search" class="search_bar">
+        <button class="btn btn-primary addCustomerBtn">Add Course</button>
+    </div>
+</div>
+
+
+
+
+<div>
+    <div id="CourseDataContainer"></div>
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-end align-items-center px-2 d-lg-flex d-sm-flex gap-2">
+            <div class="d-flex align-items-center mb-1 mt-2">
+                <span>Items per page:   </span>
+                <div class="custom-dropdown">
+                    <button class="btn border" type="button" id="itemsPerPageBtn">
+                        5 <span><i class="bi bi-chevron-down"></i></span>
+                    </button>
+                    <div class="custom-dropdown-menu" id="itemsPerPageMenu" style="display: none;">
+                        <div class="page-size-option" data-size="5">5</div>
+                        <div class="page-size-option" data-size="10">10</div>
+                        <div class="page-size-option" data-size="15">15</div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center mb-1 mt-2 gap-2">
+                <span id="pagination-info">Showing 1-5 of 0</span>
+                <li class="page-item">
+                    <a class="page-link" id="prevPage" href="#">
+                        < </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" id="nextPage" href="#"> > </a>
+                </li>
+            </div>
+        </ul>
+    </nav>
+</div>
+
+<partial name="_AddCourseModalsPartial" model="Model" />
+<partial name="_EditCourseModalPartial" model="Model" />
+
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var searchTerm = '';
+            var pageSize = 5;
+            var page = 1;
+            var rowsPerPage = 5;
+            var currentPage = 1;
+            var totalItems = 0;
+
+            var openAddCustomerModal = new bootstrap.Modal("#AddCourse", {
+                backdrop: "static",
+                keyboard: false,
+            });
+            var openEditCustomerModal = new bootstrap.Modal("#EditCourse", {
+                backdrop: "static",
+                keyboard: false,
+            });
+            $(document).on('input', '#searchInput', function (e) {
+                searchTerm = $(this).val();
+                FetchCourses(page, pageSize);
+            })
+
+            $(document).on("click", "#itemsPerPageBtn", function () {
+                $("#itemsPerPageMenu").toggle();
+            });
+            function updatePagination() {
+                var totalPages = Math.ceil(totalItems / rowsPerPage);
+                var startItem = (currentPage - 1) * rowsPerPage + 1;
+                var endItem = Math.min(currentPage * rowsPerPage, totalItems);
+                $("#pagination-info").text(
+                    `Showing ${startItem}-${endItem} of ${totalItems}`
+                );
+                $("#prevPage").toggleClass("disabled", currentPage === 1);
+                $("#nextPage").toggleClass("disabled", currentPage >= totalPages);
+            }
+
+            // Page size change
+            $(document).on("click", ".page-size-option", function (e) {
+                e.preventDefault();
+                var newSize = parseInt($(this).data("size"));
+                if (newSize !== rowsPerPage) {
+                    rowsPerPage = newSize;
+                    $("#itemsPerPageBtn").html(
+                        `${rowsPerPage} <span><i class="bi bi-chevron-down"></i></span>`
+                    );
+                    currentPage = 1;
+                    FetchCourses(currentPage, rowsPerPage);
+                }
+                $("#itemsPerPageMenu").hide();
+            });
+
+            // Previous page
+            $(document).on("click", "#prevPage", function (e) {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    FetchCourses(currentPage, rowsPerPage);
+                }
+            });
+
+            // Next page
+            $(document).on("click", "#nextPage", function (e) {
+                e.preventDefault();
+                if (currentPage * rowsPerPage < totalItems) {
+                    currentPage++;
+                    FetchCourses(currentPage, rowsPerPage);
+                }
+            });
+
+            function FetchCourses(page, pageSize) {
+                $.ajax({
+                    url: "/Dashboard/GetAllCourses",
+                    type: "GET",
+                    data: {
+                        searchTerm: searchTerm,
+                        pageNumber: page,
+                        pageSize: pageSize,
+
+                    },
+                    success: function (data) {
+                        $("#CourseDataContainer").html(data);
+                        totalItems = parseInt($("#TableContainer").attr("data-total-items")) || 0;
+                        updatePagination();
+                    },
+                    error: function () {
+                        console.log("Error loading course details");
+                        toastr.error("Error loading course details.", "Error", {
+                            timeOut: 3000,
+                        });
+                    },
+                });
+            }
+
+            $(document).on('submit', '#AddCourseForm', function (e) {
+                e.preventDefault();
+                if (!$(this).valid()) {
+                    return;
+                }
+                var formData = $(this).serialize();
+                $.ajax({
+                    url: "/Dashboard/AddCourseForm",
+                    type: "POST",
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message, "Success", { timeOut: 3000 });
+                            openAddCustomerModal.hide();
+                            $('#AddCourseForm')[0].reset();
+                            FetchCourses(currentPage,rowsPerPage);
+                        }
+                        else {
+                            toastr.error(
+                                response.message || "Failed to Add Course.",
+                                "Error",
+                                { timeOut: 3000 }
+                            );
+                        }
+                    },
+                    error: function () {
+                        console.log("Error loading add course ");
+                        toastr.error("Error loading add course.", "Error", {
+                            timeOut: 3000,
+                        });
+                    },
+                });
+            });
+            $(document).on('submit', '#EditCourseForm', function (e) {
+                e.preventDefault();
+                if (!$(this).valid()) {
+                    return;
+                }
+                var formData = $(this).serialize();
+                $.ajax({
+                    url: "/Dashboard/EditCourseForm",
+                    type: "POST",
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message, "Success", { timeOut: 3000 });
+                            openEditCustomerModal.hide();
+                            $('#EditCourseForm')[0].reset();
+                            FetchCourses(1, 5);
+                        }
+                        else {
+                            toastr.error(
+                                response.message || "Failed to Edit Course.",
+                                "Error",
+                                { timeOut: 3000 }
+                            );
+                        }
+                    },
+                    error: function () {
+                        console.log("Error loading Edit course ");
+                        toastr.error("Error loading Edit course.", "Error", {
+                            timeOut: 3000,
+                        });
+                    },
+                });
+            });
+
+
+            $(document).on('click', '.edit-course-link', function (e) {
+                var EditCourseName = $(this).data("course-name");
+                var EditCourseContent = $(this).data("course-content");
+                var EditCredits = $(this).data("credits");
+                var EditCourseDepartment = $(this).data("department");
+                var EditCourseId = $(this).data("id");
+                @* console.log(EditCourseName); *@
+                    $('#EditCourseName').val(EditCourseName);
+                $('#EditCourseContent').val(EditCourseContent);
+                $('#EditCourseDepartment').val(EditCourseDepartment);
+                $('#EditCredits').val(EditCredits);
+                $('#EditCourseId').val(EditCourseId);
+                openEditCustomerModal.show();
+            });
+
+
+
+            $(document).on('click', '.addCustomerBtn', function (e) {
+                openAddCustomerModal.show();
+            })
+
+
+            $(document).on('click', '.delete-course-link', function () {
+                var CourseId = $(this).data("course-id");
+                $.ajax({
+                    url: "/Dashboard/DeleteCourse",
+                    type: "POST",
+                    data: { CourseId: CourseId },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message, "Success", { timeOut: 3000 });
+                            FetchCourses(1, 5);
+                        }
+                        else {
+                            toastr.error(
+                                response.message || "Failed to delete Course.",
+                                "Error",
+                                { timeOut: 3000 }
+                            );
+                        }
+                    },
+                    error: function () {
+                        console.log("Error loading delete course ");
+                        toastr.error("Error loading delete course.", "Error", {
+                            timeOut: 3000,
+                        });
+                    },
+                });
+            })
+
+            FetchCourses(1, 5);
+        })
+    </script>
+}

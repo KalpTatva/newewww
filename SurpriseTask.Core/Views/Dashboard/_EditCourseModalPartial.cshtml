@@ -1,0 +1,39 @@
+@model SurpriseTask.Repository.ViewModels.AddCourseViewModel;
+
+
+<div class="modal fade" id="EditCourse" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Edit course</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="EditCourseForm" method="post">
+        <div class="modal-body">
+          <div class=" has-validation my-2 mb-4">
+            <input class="form-control" id="EditCourseName" asp-for="CourseName"  placeholder="Course name" value="">
+            <span asp-validation-for="CourseName" class="text-danger float-start"></span>
+          </div>
+          <div class=" has-validation my-2 mb-4">
+            <input class="form-control" id="EditCourseContent"  asp-for="CourseContent"  placeholder="Course Content" value="">
+            <span asp-validation-for="CourseContent" class="text-danger float-start"></span>
+          </div>
+          <div class="has-validation my-2 mb-4">
+            <input class="form-control" id="EditCredits" asp-for="Credits"  placeholder="Credits" value="">
+            <span asp-validation-for="Credits" class="text-danger float-start"></span>
+          </div>
+          <div class="has-validation my-2 mb-4">
+            <input class="form-control" id="EditCourseDepartment" asp-for="Department"  placeholder="Department" value="">
+            <span asp-validation-for="Department" class="text-danger float-start"></span>
+          </div>
+            <input id="EditCourseId" asp-for="CourseId" type="hidden">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,84 @@
+@model SurpriseTask.Repository.ViewModels.CoursesViewModel;
+
+
+
+<div class="p-2 orderContainer overflow-auto" id="TableContainer" data-total-items="@Model.TotalItems">
+    @if (Model.Courses != null && Model.Courses.Any())
+    {
+        <table class="table text-nowrap ">
+            <thead>
+                <tr>
+                    <th class="text-center">id
+
+                    </th>
+                    <th class="text-center">Course name</th>
+                    <th class="text-center ">Course Content</th>
+                    <th class="text-center ">Credits
+
+                    </th>
+                    <th class="text-center ">Department
+                    </th>
+                    <th class="text-center ">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var i in Model.Courses)
+                {
+                    <tr class="customerDetailsClass">
+                        <td class="text-center">
+                            @i.CourseId
+                        </td>
+                        <td class="text-center">
+                            @i.CourseName
+                        </td>
+                        <td class="text-center">
+                            @i.CourseContent
+                        </td>
+                        <td class="text-center">
+                            @i.Credits
+                        </td>
+                        <td class="text-center">
+                            @i.Department
+                        </td>
+
+
+                        @if (Model.Role == "User")
+                        {
+                            <td class="text-center">
+                                <a class="mx-1 CourseDetails text-decoration-none text-black" data-id="@i.CourseId"
+                                    data-course-name="@i.CourseName" data-course-content="@i.CourseContent"
+                                    data-credits="@i.Credits" data-department="@i.Department">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a class="mx-1 Enroll-in-link text-black btn btn-danger text-white" data-course-id="@i.CourseId">
+                                    Enroll In
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="text-center">
+                                <a class="mx-1 edit-course-link text-decoration-none text-black" data-id="@i.CourseId"
+                                    data-course-name="@i.CourseName" data-course-content="@i.CourseContent"
+                                    data-credits="@i.Credits" data-department="@i.Department">
+                                    <i class="bi bi-pen"></i>
+                                </a>
+                                <a class="mx-1 delete-course-link text-black" data-course-id="@i.CourseId">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        }
+
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="d-flex align-items-center justify-content-center m-4">No Course Found</div>
+    }
+</div>

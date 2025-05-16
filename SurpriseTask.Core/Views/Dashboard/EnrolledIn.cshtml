@@ -1,0 +1,76 @@
+@{
+    ViewData["Title"] = "My Courses";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+<div class="d-flex justify-content-between px-4">
+    <h3 class="">@ViewData["Title"]</h3>
+    <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-primary EnrolledIn" asp-action="UserDashBoard" asp-controller="Dashboard">back</a>
+    </div>
+</div>
+
+
+<div>
+    <div id="EnrolledCourseDetails">
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+
+            function FetchCourses(page, pageSize) {
+                $.ajax({
+                    url: "/Dashboard/GetEnrolmentDetails",
+                    type: "GET",
+                    success: function (data) {
+                        console.log(data);
+                        $("#EnrolledCourseDetails").html(data);
+                    },
+                    error: function () {
+                        console.log("Error loading course details");
+                        toastr.error("Error loading course details.", "Error", {
+                            timeOut: 3000,
+                        });
+                    },
+                });
+            }
+
+            $(document).on('click', '.Complete-Course', function () {
+                var courseid = $(this).data("course-id");
+                console.log(courseid);
+                $.ajax({
+                    url: "/Dashboard/CompleteCourse",
+                    type: "GET",
+                    data: {CourseId : courseid},
+                    success: function (data) {
+                        if (data.success) {
+                            FetchCourses(1, 5);
+                            toastr.success(data.message, "Success", { timeOut: 3000 });
+                        }else{
+                            toastr.error("Error loading course details.", "Error", {
+                            timeOut: 3000,
+                            });
+                        }
+                    },
+                    error: function () {
+                        console.log("Error loading course details");
+                        toastr.error("Error loading course details.", "Error", {
+                            timeOut: 3000,
+                        });
+                    },
+                });
+            })
+
+
+
+            FetchCourses(1, 5);
+        })
+    </script>
+}

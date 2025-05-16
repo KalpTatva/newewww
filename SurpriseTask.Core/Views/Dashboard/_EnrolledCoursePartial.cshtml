@@ -1,0 +1,69 @@
+@using static SurpriseTask.Repository.Helpers.Enums
+@model SurpriseTask.Repository.ViewModels.EnrolledCourseViewModel;
+
+
+
+<div class="p-2 orderContainer overflow-auto" id="TableContainer" >
+    @if (Model.enrolledIns != null && Model.enrolledIns.Any())
+    {
+        <table class="table text-nowrap ">
+            <thead>
+                <tr>
+                    <th class="text-center">id
+
+                    </th>
+                    <th class="text-center">Course name</th>
+                    <th class="text-center ">Course Content</th>
+                    <th class="text-center ">Credits
+
+                    </th>
+                    <th class="text-center ">Department
+                    </th>
+                    <th class="text-center ">Course Status
+                    </th>
+                    <th class="text-center ">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var i in Model.enrolledIns)
+                {
+                    <tr class="customerDetailsClass">
+                        <td class="text-center">
+                            @i.CourseId
+                        </td>
+                        <td class="text-center">
+                            @i.CourseName
+                        </td>
+                        <td class="text-center">
+                            @i.CourseContent
+                        </td>
+                        <td class="text-center">
+                            @i.Credits
+                        </td>
+                        <td class="text-center">
+                            @i.Department
+                        </td>
+                        <td class="text-center">
+                            @((CourseStatus)i.status)
+                        </td>
+
+
+                            
+                            <td class="text-center">
+                                <a class="mx-1 Complete-Course text-black btn @(i.status == (int)CourseStatus.Pending ? "btn-info" : "btn-success") text-white" data-course-id="@i.CourseId">
+                                    Complete Course 
+                                </a>
+                            </td>
+                        
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="d-flex align-items-center justify-content-center m-4">No Course Found</div>
+    }
+</div>

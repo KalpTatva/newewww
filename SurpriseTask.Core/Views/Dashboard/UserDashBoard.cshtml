@@ -1,0 +1,195 @@
+@{
+    ViewData["Title"] = "Students";
+    Layout = "~/Views/Shared/_Dashboard.cshtml";
+}
+
+<div class="d-flex justify-content-between px-4">
+    <h3 class="">@ViewData["Title"]</h3>
+    <div class="d-flex align-items-center gap-2">
+        <input type="text" id="searchInput" placeholder="Search" class="search_bar">
+        <a class="btn btn-primary EnrolledIn" asp-action="EnrolledIn" asp-controller="Dashboard">Enrolled In</a>
+    </div>
+</div>
+
+
+<div class="p-3 ">
+    <div id="CourseDataContainer"></div>
+    <nav aria-label="Page navigation"></nav>
+    <ul class="pagination justify-content-end align-items-center px-2 d-lg-flex d-sm-flex gap-2">
+        <div class="d-flex align-items-center mb-1 mt-2">
+            <span>Items per page:   </span>
+            <div class="custom-dropdown">
+                <button class="btn border" type="button" id="itemsPerPageBtn">
+                    5 <span><i class="bi bi-chevron-down"></i></span>
+                </button>
+                <div class="custom-dropdown-menu" id="itemsPerPageMenu" style="display: none;">
+                    <div class="page-size-option" data-size="5">5</div>
+                    <div class="page-size-option" data-size="10">10</div>
+                    <div class="page-size-option" data-size="15">15</div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center mb-1 mt-2 gap-2">
+            <span id="pagination-info">Showing 1-5 of 0</span>
+            <li class="page-item">
+                <a class="page-link" id="prevPage" href="#">
+                    < </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" id="nextPage" href="#"> > </a>
+            </li>
+        </div>
+    </ul>
+    </nav>
+</div>
+
+
+
+<partial name="_CourseDetailsModalPartial" model="Model" />
+
+
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var searchTerm = '';
+            var pageSize = 5;
+            var page = 1;
+            var rowsPerPage = 5;
+            var currentPage = 1;
+            var totalItems = 0;
+
+            var openCourseDetails = new bootstrap.Modal("#CourseDetails", {
+                backdrop: "static",
+                keyboard: false,
+            });
+
+            $(document).on("click", "#itemsPerPageBtn", function () {
+                $("#itemsPerPageMenu").toggle();
+            });
+            function updatePagination() {
+                var totalPages = Math.ceil(totalItems / rowsPerPage);
+                var startItem = (currentPage - 1) * rowsPerPage + 1;
+                var endItem = Math.min(currentPage * rowsPerPage, totalItems);
+                $("#pagination-info").text(
+                    `Showing ${startItem}-${endItem} of ${totalItems}`
+                );
+                $("#prevPage").toggleClass("disabled", currentPage === 1);
+                $("#nextPage").toggleClass("disabled", currentPage >= totalPages);
+            }
+
+            // Page size change
+            $(document).on("click", ".page-size-option", function (e) {
+                e.preventDefault();
+                var newSize = parseInt($(this).data("size"));
+                if (newSize !== rowsPerPage) {
+                    rowsPerPage = newSize;
+                    $("#itemsPerPageBtn").html(
+                        `${rowsPerPage} <span><i class="bi bi-chevron-down"></i></span>`
+                    );
+                    currentPage = 1;
+                    FetchCourses(currentPage, rowsPerPage);
+                }
+                $("#itemsPerPageMenu").hide();
+            });
+
+            // Previous page
+            $(document).on("click", "#prevPage", function (e) {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    FetchCourses(currentPage, rowsPerPage);
+                }
+            });
+
+            // Next page
+            $(document).on("click", "#nextPage", function (e) {
+                e.preventDefault();
+                if (currentPage * rowsPerPage < totalItems) {
+                    currentPage++;
+                    FetchCourses(currentPage, rowsPerPage);
+                }
+            });
+
+            $(document).on('input', '#searchInput', function (e) {
+                searchTerm = $(this).val();
+                FetchCourses(page, pageSize);
+            })
+
+            function FetchCourses(page, pageSize) {
+                $.ajax({
+                    url: "/Dashboard/GetAllCourses",
+                    type: "GET",
+                    data: {
+                        searchTerm: searchTerm,
+                        pageNumber: page,
+                        pageSize: pageSize,
+
+                    },
+                    success: function (data) {
+                        $("#CourseDataContainer").html(data);
+                        totalItems = parseInt($("#TableContainer").attr("data-total-items")) || 0;
+                        updatePagination();
+                    },
+                    error: function () {
+                        console.log("Error loading course details");
+                        toastr.error("Error loading course details.", "Error", {
+                            timeOut: 3000,
+                        });
+                    },
+                });
+            }
+
+            $(document).on("click", ".CourseDetails", function () {
+                var EditCourseName = $(this).data("course-name");
+                var EditCourseContent = $(this).data("course-content");
+                var EditCredits = $(this).data("credits");
+                var EditCourseDepartment = $(this).data("department");
+                var EditCourseId = $(this).data("id");
+
+                $("#courseId").text(EditCourseId);
+                $("#CourseName").text(EditCourseName);
+                $("#CourseContent").text(EditCourseContent);
+                $("#CourseCredit").text(EditCredits);
+                $("#CourseDepartment").text(EditCourseDepartment);
+                openCourseDetails.show();
+            })
+
+
+            $(document).on('click', '.Enroll-in-link', function () {
+                var CourseId = $(this).data("course-id")
+                console.log(CourseId);
+
+                $.ajax({
+                    url: "/Dashboard/EnrollInCourse",
+                    type: "POST",
+                    data: {
+                        CourseId: CourseId,
+                    },
+                    success: function (data) {
+                        if (data.success) {
+                            toastr.success("Enrolled in course successfully", "Success", { timeOut: 3000 });
+                        } else {
+                            toastr.error(data.message, "Error", {
+                                timeOut: 3000,
+                            });
+                        }
+                    },
+                    error: function () {
+                        console.log("Error Enrolling in course");
+                        toastr.error("Error Enrolling in course .", "Error", {
+                            timeOut: 3000,
+                        });
+                    },
+                });
+
+            });
+
+            FetchCourses(1, 5);
+        })
+    </script>
+}
