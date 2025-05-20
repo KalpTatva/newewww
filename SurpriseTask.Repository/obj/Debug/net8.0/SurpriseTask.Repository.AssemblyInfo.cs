@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SurpriseTask.Repository")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2fc7571eab0b1160ee8c62fd299ae967fc16cf80")]
 [assembly: System.Reflection.AssemblyProductAttribute("SurpriseTask.Repository")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SurpriseTask.Repository")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

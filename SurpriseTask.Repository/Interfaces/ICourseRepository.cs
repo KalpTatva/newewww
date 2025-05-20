@@ -6,7 +6,7 @@ namespace SurpriseTask.Repository.Interfaces;
 public interface ICourseRepository
 {
     Task<List<Course>?> GetCourses(string? searchTerm = null,int pageNumber = 1, int pageSize = 5);
-    Task<int> GetCourseCount();
+    Task<int> GetCourseCount(string? searchTerm = null);
     Task<Course?> GetCourseById(int CourseId);
     Task AddCourse(Course course);
     Task UpdateCourse(Course course);

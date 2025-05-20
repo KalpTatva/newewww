@@ -74,7 +74,7 @@
             });
             $(document).on('input', '#searchInput', function (e) {
                 searchTerm = $(this).val();
-                FetchCourses(page, pageSize);
+                FetchCourses(1, 5);
             })
 
             $(document).on("click", "#itemsPerPageBtn", function () {
@@ -196,7 +196,8 @@
                             toastr.success(response.message, "Success", { timeOut: 3000 });
                             openEditCustomerModal.hide();
                             $('#EditCourseForm')[0].reset();
-                            FetchCourses(1, 5);
+                            FetchCourses(currentPage,rowsPerPage);
+
                         }
                         else {
                             toastr.error(
@@ -247,7 +248,8 @@
                     success: function (response) {
                         if (response.success) {
                             toastr.success(response.message, "Success", { timeOut: 3000 });
-                            FetchCourses(1, 5);
+                            FetchCourses(currentPage,rowsPerPage);
+
                         }
                         else {
                             toastr.error(

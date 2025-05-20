@@ -34,9 +34,9 @@ public class CourseRepository : ICourseRepository
         return courses;
     }
 
-    public async Task<int> GetCourseCount()
+    public async Task<int> GetCourseCount(string? searchTerm = null)
     {
-        return await _context.Courses.Where(x => x.IsDeleted == false).CountAsync();
+        return await _context.Courses.Where(x => x != null && x.CourseName != null && x.CourseName.ToLower().Trim().Contains(searchTerm) && x.IsDeleted == false).CountAsync();
     }
 
 

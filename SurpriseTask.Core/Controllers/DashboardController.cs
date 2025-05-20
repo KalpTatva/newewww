@@ -175,7 +175,7 @@ public class DashboardController : Controller
             {
                 return Json(new {
                     success = true,
-                    message = "Course Completed successfully"
+                    message = "Course Deleted successfully"
                 });
             }
             return Json(new {

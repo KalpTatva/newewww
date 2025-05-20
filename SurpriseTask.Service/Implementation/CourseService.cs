@@ -36,7 +36,7 @@ public class CourseService : ICourseServices
             List<Course>? courses = await _courseRepository.GetCourses(searchTerm,pageNumber,pageSize);
             if(courses!=null)
             {
-                int TotalItems = await _courseRepository.GetCourseCount();
+                int TotalItems = await _courseRepository.GetCourseCount(searchTerm);
                 coursesViewModel.Courses = courses;
                 coursesViewModel.TotalItems = TotalItems;
             }
